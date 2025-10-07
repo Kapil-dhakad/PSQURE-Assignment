@@ -1,5 +1,6 @@
 import express from 'express';
 import authRoutes from './routes/auth.route.js';
+import tripRoutes from './routes/trip.route.js';
 import globalErrorHandler from './utils/errorHandler.js';
 import cors from "cors";
 
@@ -13,6 +14,7 @@ app.use(cors({
 }));
 
 app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/trips', tripRoutes);
 
 
 app.use(globalErrorHandler);

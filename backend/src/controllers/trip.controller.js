@@ -1,0 +1,71 @@
+import tripModel from "../model/trip.model.js";
+import { ApiError } from "../utils/ApiErrors.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
+
+ const createTrip = asyncHandler(async (req, res) => {
+   const { from, to, date, time, price, totalSeats } = req.body;
+    if (!from || !to || !date || !time || !price || !totalSeats) {
+       throw new ApiError(400, 'All fields are required');
+    }       
+    
+    const availableSeats = Array.from({ length: totalSeats }, (_, i) => i + 1);
+
+    const trip = await tripModel.create({
+        from,
+        to,
+        date,
+        time,
+        price,
+        totalSeats,
+        availableSeats,
+    }); 
+    return res.status(201).json(
+        new ApiResponse(201, trip, "Trip created successfully")
+    );
+});
+
+const getTrips = asyncHandler(async (req, res) => {
+    const { from, to, date } = req.query;
+    const filter = {};
+    if (from) filter.from = from;
+    if (to) filter.to = to;
+    if (date) filter.date = date;
+
+    const trips = await tripModel.find(filter);
+    return res.status(200).json(
+        new ApiResponse(200, trips, "Trips retrieved successfully")
+    );
+});
+
+const getTripById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new ApiError(400, "Invalid Trip ID format");
+  }
+
+  const trip = await tripModel.findById(id);
+  if (!trip) {
+    throw new ApiError(404, "Trip not found");
+  }
+  return res.status(200).json(new ApiResponse(200, trip, "Trip details retrieved successfully"));
+});
+
+
+const deleteTripById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new ApiError(400, "Invalid Trip ID format");
+  }
+
+  const trip = await tripModel.findByIdAndDelete(id);
+  if (!trip) {
+    throw new ApiError(404, "Trip not found");
+  }
+  return res.status(200).json(new ApiResponse(200, null, "Trip deleted successfully"));
+});
+
+export { createTrip, getTrips, getTripById, deleteTripById };
+
