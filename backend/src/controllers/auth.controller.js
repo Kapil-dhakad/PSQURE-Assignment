@@ -4,6 +4,7 @@ import { ApiError } from "../utils/ApiErrors.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import jwt from 'jsonwebtoken'
 import config from '../config/environment.js';
+import bcrypt from 'bcrypt';
 const { JWT_SECRET } = config;
 
 
@@ -20,10 +21,11 @@ const registerUser = asyncHandler(async (req, res) => {
         throw new ApiError(400, 'User already exists with this email');
     }
 
+    const hashedPassword = await bcrypt.hash(password, 10);
     const user = await User.create({
         name,
         email,
-        password
+        password: hashedPassword
     });
 
     const token = jwt.sign({
@@ -52,11 +54,10 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, 'Invalid email or password');
   }
 
-  const isMatch = await user.comparePassword(password);
-  if (!isMatch) {
+  const isPasswordValid = await bcrypt.compare(password, user.password);
+  if (!isPasswordValid) {
     throw new ApiError(401, 'Invalid email or password');
   }
-
   const token = jwt.sign(
     { id: user._id },
     JWT_SECRET,
@@ -68,7 +69,7 @@ const loginUser = asyncHandler(async (req, res) => {
     secure: process.env.NODE_ENV === 'production',
   });
 
-  return res.status(200).json(new ApiResponse(200, { user: { id: user._id, name: user.name, email: user.email, role: user.role }, token }, 'Login successful'));
+  return res.status(200).json(new ApiResponse(200, user, 'Login successful'));
 });
 
 export { registerUser ,loginUser};
