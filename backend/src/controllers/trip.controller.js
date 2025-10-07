@@ -5,6 +5,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 
  const createTrip = asyncHandler(async (req, res) => {
    const { from, to, date, time, price, totalSeats } = req.body;
+   
     if (!from || !to || !date || !time || !price || !totalSeats) {
        throw new ApiError(400, 'All fields are required');
     }       
@@ -52,6 +53,36 @@ const getTripById = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, trip, "Trip details retrieved successfully"));
 });
 
+const editTripById = asyncHandler(async (req, res) => {
+  const { id } = req.params;
+  const { from, to, date, time, price, totalSeats } = req.body;
+
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new ApiError(400, "Invalid Trip ID format");
+  }
+
+  if (!from || !to || !date || !time || !price || !totalSeats) {
+    throw new ApiError(400, 'All fields are required');
+  }
+
+  const availableSeats = Array.from({ length: totalSeats }, (_, i) => i + 1);
+
+  const updatedTrip = await tripModel.findByIdAndUpdate(
+    id,
+    { from, to, date, time, price, totalSeats, availableSeats },
+    { new: true, runValidators: true }
+  );
+
+  if (!updatedTrip) {
+    throw new ApiError(404, "Trip not found");
+  }
+
+  return res.status(200).json(
+    new ApiResponse(200, updatedTrip, "Trip updated successfully")
+  );
+});
+
+
 
 const deleteTripById = asyncHandler(async (req, res) => {
   const { id } = req.params;
@@ -67,5 +98,5 @@ const deleteTripById = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, null, "Trip deleted successfully"));
 });
 
-export { createTrip, getTrips, getTripById, deleteTripById };
+export { createTrip, getTrips, getTripById, editTripById, deleteTripById };
 

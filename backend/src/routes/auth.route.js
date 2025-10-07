@@ -1,9 +1,10 @@
 import express from 'express';
 import  {loginUser, registerUser}  from '../controllers/auth.controller.js';
+import { isUser } from '../middleware/authUser.middleware.js';
 
 const router = express.Router();
 
 router.post('/register', registerUser);
-router.post('/login', loginUser);
+router.post('/login', isUser, loginUser);
 
 export default router;

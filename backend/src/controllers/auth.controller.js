@@ -10,7 +10,7 @@ const { JWT_SECRET } = config;
 
 
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     if (!name || !email || !password) {
         throw new ApiError(400, 'Name, email, and password are required');
@@ -25,7 +25,8 @@ const registerUser = asyncHandler(async (req, res) => {
     const user = await User.create({
         name,
         email,
-        password: hashedPassword
+        password: hashedPassword,
+        role: role || 'user'
     });
 
     const token = jwt.sign({
@@ -59,7 +60,7 @@ const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(401, 'Invalid email or password');
   }
   const token = jwt.sign(
-    { id: user._id },
+    { id: user._id, role: user.role },
     JWT_SECRET,
     { expiresIn: '1d' }
   );

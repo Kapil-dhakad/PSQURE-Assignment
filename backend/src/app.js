@@ -3,10 +3,13 @@ import authRoutes from './routes/auth.route.js';
 import tripRoutes from './routes/trip.route.js';
 import globalErrorHandler from './utils/errorHandler.js';
 import cors from "cors";
+import coookieParser from 'cookie-parser';
+
 
 const app = express();
 
 app.use(express.json());
+app.use(coookieParser());
 
 app.use(cors({
   origin: "http://localhost:5173",  
