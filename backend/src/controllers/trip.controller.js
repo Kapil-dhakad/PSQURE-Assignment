@@ -1,42 +1,42 @@
-import tripModel from "../model/trip.model.js";
+import Trip from "../models/trip.model.js";
 import { ApiError } from "../utils/ApiErrors.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
- const createTrip = asyncHandler(async (req, res) => {
-   const { from, to, date, time, price, totalSeats } = req.body;
-   
-    if (!from || !to || !date || !time || !price || !totalSeats) {
-       throw new ApiError(400, 'All fields are required');
-    }       
-    
-    const availableSeats = Array.from({ length: totalSeats }, (_, i) => i + 1);
+const createTrip = asyncHandler(async (req, res) => {
+  const { from, to, date, time, price, totalSeats } = req.body;
 
-    const trip = await tripModel.create({
-        from,
-        to,
-        date,
-        time,
-        price,
-        totalSeats,
-        availableSeats,
-    }); 
-    return res.status(201).json(
-        new ApiResponse(201, trip, "Trip created successfully")
-    );
+  if (!from || !to || !date || !time || !price || !totalSeats) {
+    throw new ApiError(400, 'All fields are required');
+  }
+
+  const availableSeats = Array.from({ length: totalSeats }, (_, i) => i + 1);
+
+  const trip = await Trip.create({
+    from,
+    to,
+    date,
+    time,
+    price,
+    totalSeats,
+    availableSeats,
+  });
+  return res.status(201).json(
+    new ApiResponse(201, trip, "Trip created successfully")
+  );
 });
 
 const getTrips = asyncHandler(async (req, res) => {
-    const { from, to, date } = req.query;
-    const filter = {};
-    if (from) filter.from = from;
-    if (to) filter.to = to;
-    if (date) filter.date = date;
+  const { from, to, date } = req.query;
+  const filter = {};
+  if (from) filter.from = from;
+  if (to) filter.to = to;
+  if (date) filter.date = date;
 
-    const trips = await tripModel.find(filter);
-    return res.status(200).json(
-        new ApiResponse(200, trips, "Trips retrieved successfully")
-    );
+  const trips = await Trip.find(filter);
+  return res.status(200).json(
+    new ApiResponse(200, trips, "Trips retrieved successfully")
+  );
 });
 
 const getTripById = asyncHandler(async (req, res) => {
@@ -46,7 +46,7 @@ const getTripById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid Trip ID format");
   }
 
-  const trip = await tripModel.findById(id);
+  const trip = await Trip.findById(id);
   if (!trip) {
     throw new ApiError(404, "Trip not found");
   }
@@ -67,7 +67,7 @@ const editTripById = asyncHandler(async (req, res) => {
 
   const availableSeats = Array.from({ length: totalSeats }, (_, i) => i + 1);
 
-  const updatedTrip = await tripModel.findByIdAndUpdate(
+  const updatedTrip = await Trip.findByIdAndUpdate(
     id,
     { from, to, date, time, price, totalSeats, availableSeats },
     { new: true, runValidators: true }
@@ -91,7 +91,7 @@ const deleteTripById = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Invalid Trip ID format");
   }
 
-  const trip = await tripModel.findByIdAndDelete(id);
+  const trip = await Trip.findByIdAndDelete(id);
   if (!trip) {
     throw new ApiError(404, "Trip not found");
   }

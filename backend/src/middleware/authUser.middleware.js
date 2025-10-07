@@ -7,7 +7,7 @@ const { JWT_SECRET } = config;
 
 const isUser = asyncHandler(async (req, res, next) => {
     const token = req.cookies.token ;
-    console.log(token)
+    // console.log(token)
     if (!token) {
         throw new ApiError(401, 'No token provided');
     }

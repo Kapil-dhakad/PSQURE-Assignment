@@ -1,4 +1,4 @@
-import User from "../model/user.model.js";
+import User from "../models/user.model.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiErrors.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
@@ -10,35 +10,38 @@ const { JWT_SECRET } = config;
 
 
 const registerUser = asyncHandler(async (req, res) => {
-    const { name, email, password, role } = req.body;
+  const { name, email, password, role } = req.body;
 
-    if (!name || !email || !password) {
-        throw new ApiError(400, 'Name, email, and password are required');
-    }
+  if (!name || !email || !password) {
+    throw new ApiError(400, 'Name, email, and password are required');
+  }
 
-    const isUserExist = await User.findOne({ email });
-    if (isUserExist) {
-        throw new ApiError(400, 'User already exists with this email');
-    }
+  const isUserExist = await User.findOne({ email });
+  if (isUserExist) {
+    throw new ApiError(400, 'User already exists with this email');
+  }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({
-        name,
-        email,
-        password: hashedPassword,
-        role: role || 'user'
-    });
+  const hashedPassword = await bcrypt.hash(password, 10);
+  const user = await User.create({
+    name,
+    email,
+    password: hashedPassword,
+    role: role || 'user'
+  });
 
-    const token = jwt.sign({
-        id: user._id,
-    }, JWT_SECRET, { expiresIn: '1d' });
+  const token = jwt.sign({
+    id: user._id,
+  }, JWT_SECRET, { expiresIn: '1d' });
 
-    res.cookie('token', token);
+  res.cookie('token', token, {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === 'production',
+});
 
 
-    return res.status(201).json(
-        new ApiResponse(200, user, "User Created successfully")
-    )
+  return res.status(201).json(
+    new ApiResponse(200, user, "User Created successfully")
+  )
 });
 
 
@@ -73,4 +76,4 @@ const loginUser = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, user, 'Login successful'));
 });
 
-export { registerUser ,loginUser};
+export { registerUser, loginUser };
