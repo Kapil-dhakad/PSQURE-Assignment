@@ -51,9 +51,8 @@ const createBooking = asyncHandler(async (req, res) => {
         session.endSession();
 
         return res.status(201).json(
-            new ApiResponse(201, 'Booking created successfully', booking[0]
-            )
-        )
+            new ApiResponse(201, booking[0], 'Booking created successfully')
+        );
     } catch (error) {
         await session.abortTransaction();
         session.endSession();
@@ -96,4 +95,42 @@ const getUserBookings = asyncHandler(async (req, res) => {
   );
 });
 
-export { createBooking, getUserBookings };
+const getAllBookings = asyncHandler(async (req, res) => {
+    const bookings = await Booking.find()
+    .populate('user', 'name email')
+    .populate('trip', 'from to date time price')
+    .sort({ bookingDate: -1 })
+    .lean();
+    return res.status(200).json(
+        new ApiResponse(200, bookings, 'All bookings fetched successfully')
+    );
+});
+
+const cancelBooking = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+        throw new ApiError(400, "Invalid booking ID");
+    }
+
+    const booking = await Booking.findById(id);
+    if (!booking) {
+        throw new ApiError(404, 'Booking not found');
+    }
+
+    booking.status = 'cancelled';
+
+   const trip = await Trip.findById(booking.trip);
+    if (trip) {
+        trip.availableSeats.push(...booking.seats);
+        await trip.save();
+    }
+
+    await booking.save();
+
+    return res.status(200).json(
+        new ApiResponse(200, booking, 'Booking cancelled successfully')
+    );
+});
+
+export { createBooking, getUserBookings, getAllBookings, cancelBooking };
