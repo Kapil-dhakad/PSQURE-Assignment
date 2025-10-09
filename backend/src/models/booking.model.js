@@ -27,7 +27,7 @@ const bookingSchema = new mongoose.Schema({
     },
     paymentInfo: {
         method: { type: String },
-        paid: { type: Boolean, default: false },
+        paid: { type: Boolean, default: true },
         txnId: { type: String }
     },
     createdAt: {

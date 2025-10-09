@@ -1,0 +1,133 @@
+.trip-card {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  width: 389px;
+  height: 440px;
+  box-shadow: 0 6px 25px rgba(0, 0, 0, 0.18);
+  transition: all 0.3s ease;
+}
+
+.trip-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+  transform: translateY(-4px);
+}
+
+/* Image */
+.trip-card-image {
+  position: relative;
+  width: 100%;
+  height: 192px;
+  overflow: hidden;
+}
+
+.trip-card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  border-radius: 999px;
+}
+
+.badge-popular {
+  left: 12px;
+  background: #ef4444; 
+}
+
+.badge-discount {
+  right: 12px;
+  background: #22c55e; 
+}
+
+.trip-card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: calc(440px - 192px);
+}
+
+.trip-card-rating {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #f59e0b;
+}
+
+.trip-card-rating .reviews {
+  margin-left: 6px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.trip-card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 10px;
+  text-align: left;
+}
+
+.trip-card-details p {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  color: #4b5563;
+  margin: 6px 0;
+  text-align: left;
+}
+
+.trip-card-details .icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  color: #2563eb;
+}
+
+.trip-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 12px;
+  margin-top: auto;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2563eb;
+}
+
+.old-price {
+  font-size: 14px;
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+.book-btn {
+  background: #2563eb;
+  color: white;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.book-btn:hover {
+  background: #1d4ed8;
+  transform: scale(1.05);
+}

@@ -76,4 +76,54 @@ const loginUser = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, user, 'Login successful'));
 });
 
-export { registerUser, loginUser };
+const getProfile = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const user = await User.findById(userId)
+    .select('name email phone address dateOfBirth emails role createdAt updatedAt')
+    .lean();
+
+     if (!user) {
+    throw new ApiError(404, "User not found"); 
+  }
+
+   return res.status(200).json(
+    new ApiResponse(200, user, "User profile fetched successfully")
+  );
+});
+
+
+
+const getUserProfile = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const user = await User.findById(userId)
+    .select('name email phone address dateOfBirth emails role createdAt updatedAt')
+    .lean();
+
+     if (!user) {
+    throw new ApiError(404, "User not found"); 
+  }
+
+   return res.status(200).json(
+    new ApiResponse(200, user, "User profile fetched successfully")
+  );
+});
+
+
+
+const getAdminProfile = asyncHandler(async (req, res) => {
+    const userId = req.user.id;
+    const user = await User.findById(userId)
+    .select('name email phone address dateOfBirth emails role createdAt updatedAt')
+    .lean();
+
+     if (!user) {
+    throw new ApiError(404, "User not found"); 
+  }
+
+   return res.status(200).json(
+    new ApiResponse(200, user, "User profile fetched successfully")
+  );
+});
+
+
+export { registerUser, loginUser, getProfile,getAdminProfile, getUserProfile };

@@ -82,8 +82,6 @@ const editTripById = asyncHandler(async (req, res) => {
   );
 });
 
-
-
 const deleteTripById = asyncHandler(async (req, res) => {
   const { id } = req.params;
 
@@ -98,5 +96,16 @@ const deleteTripById = asyncHandler(async (req, res) => {
   return res.status(200).json(new ApiResponse(200, null, "Trip deleted successfully"));
 });
 
-export { createTrip, getTrips, getTripById, editTripById, deleteTripById };
+const getAdminTrips = async(req, res) =>{
+  const { id } = req.user;
 
+  const trips = await Trip.find();
+
+  res.status(200).json({
+    messgae:"trip fetched!",
+    success:true,
+    trips
+  })
+}
+
+export { createTrip, getTrips, getTripById, editTripById, deleteTripById, getAdminTrips };

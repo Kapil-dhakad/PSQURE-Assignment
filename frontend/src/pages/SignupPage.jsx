@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Eye, EyeOff, Mail, Plane, User } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "react-toastify"; // ToastContainer ab App.js me hoga
+import { TourContext } from "../context/TourBookingContext";
 
 const SignupPage = () => {
   const [Password, setPassword] = useState(false);
   const [ConfirmPassword, setConfirmPassword] = useState(false);
+  const navigate = useNavigate();
+  const { setLoggedInUser } = useContext(TourContext);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -23,17 +25,10 @@ const SignupPage = () => {
     confirmPassword: "",
   });
 
-  const navigate = useNavigate();
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-  const validateEmail = (email) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(email);
-  };
-
-  const validatePassword = (password) => {
-    const regex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/;
-    return regex.test(password);
-  };
+  const validatePassword = (password) =>
+    /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/.test(password);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -72,10 +67,18 @@ const SignupPage = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    if (!formData.name || !formData.email || !formData.password || !formData.confirmPassword) {
+    toast.dismiss(); // Purane toasts remove kar do
+
+    if (
+      !formData.name ||
+      !formData.email ||
+      !formData.password ||
+      !formData.confirmPassword
+    ) {
       toast.error("Please fill all fields correctly!");
       return;
     }
+
     if (errors.email || errors.password || errors.confirmPassword) {
       toast.error("Please fix the errors in the form!");
       return;
@@ -89,13 +92,13 @@ const SignupPage = () => {
           email: formData.email,
           password: formData.password,
         },
-        {
-          withCredentials: true,
-        }
+        { withCredentials: true }
       );
 
-      toast.success("Signup successful!");
-      setTimeout(() => navigate("/login"), 1500);
+      toast.success(res.data.message || "Signup successful!");
+      setLoggedInUser(res?.data?.data);
+      localStorage.setItem("userData", JSON.stringify(res?.data?.data));
+      setTimeout(() => navigate("/home"), 500);
     } catch (err) {
       console.error(err.response?.data || err.message);
       toast.error(err.response?.data?.message || "Signup failed");
@@ -107,7 +110,7 @@ const SignupPage = () => {
       <div className="flex flex-col justify-between w-full max-w-md p-9 text-center bg-white rounded-3xl shadow-xl min-h-[700px]">
         <div className="flex justify-center mb-7">
           <div className="p-4 text-white bg-blue-600 rounded-full shadow-md">
-            <Plane size={29} />
+            <Plane size={28} />
           </div>
         </div>
 
@@ -124,6 +127,7 @@ const SignupPage = () => {
           onSubmit={handleSignup}
           className="flex flex-col gap-5 mb-9 text-left"
         >
+          {/* Full Name */}
           <div>
             <label className="block mb-1 text-sm text-gray-700">Full Name</label>
             <div className="relative">
@@ -135,14 +139,12 @@ const SignupPage = () => {
                 placeholder="John Doe"
                 className="w-full px-5 py-2.5 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <User
-                className="absolute text-gray-400 right-3 top-3"
-                size={18}
-              />
+              <User className="absolute text-gray-400 right-3 top-3" size={18} />
             </div>
             {errors.name && <p className="text-xs text-red-500 mt-1">{errors.name}</p>}
           </div>
 
+          {/* Email */}
           <div>
             <label className="block mb-1 text-sm text-gray-700">Email</label>
             <div className="relative">
@@ -154,14 +156,12 @@ const SignupPage = () => {
                 placeholder="john.doe@example.com"
                 className="w-full px-5 py-2.5 pr-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
-              <Mail
-                className="absolute text-gray-400 right-3 top-3"
-                size={18}
-              />
+              <Mail className="absolute text-gray-400 right-3 top-3" size={18} />
             </div>
             {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
           </div>
 
+          {/* Password */}
           <div>
             <label className="block mb-1 text-sm text-gray-700">Password</label>
             <div className="relative">
@@ -190,10 +190,9 @@ const SignupPage = () => {
             {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
           </div>
 
+          {/* Confirm Password */}
           <div>
-            <label className="block mb-1 text-sm text-gray-700">
-              Confirm Password
-            </label>
+            <label className="block mb-1 text-sm text-gray-700">Confirm Password</label>
             <div className="relative">
               <input
                 type={ConfirmPassword ? "text" : "password"}
@@ -217,9 +216,12 @@ const SignupPage = () => {
                 />
               )}
             </div>
-            {errors.confirmPassword && <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>}
+            {errors.confirmPassword && (
+              <p className="text-xs text-red-500 mt-1">{errors.confirmPassword}</p>
+            )}
           </div>
 
+          {/* Submit Button */}
           <button
             type="submit"
             className="w-full py-3 cursor-pointer font-semibold text-white transition bg-blue-600 rounded-lg hover:bg-blue-700"
@@ -228,17 +230,16 @@ const SignupPage = () => {
           </button>
         </form>
 
+        {/* Login Link */}
         <p className="mt-7 text-sm text-gray-600">
           Already have an account?{" "}
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate("/")}
             className="font-medium cursor-pointer text-blue-600 hover:underline"
           >
             Log In
           </button>
         </p>
-
-        <ToastContainer position="top-right" autoClose={3000} />
       </div>
     </div>
   );

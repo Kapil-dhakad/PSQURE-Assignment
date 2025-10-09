@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useContext } from "react";
+import { TourContext } from "../context/TourBookingContext";
+
 
 const LoginPage = () => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -11,6 +14,7 @@ const LoginPage = () => {
     email: "",
     password: "",
   });
+  const {setLoggedInUser}=useContext(TourContext)
 
   const navigate = useNavigate();
 
@@ -39,8 +43,11 @@ const LoginPage = () => {
       );
 
       
-      toast.success("Login successful!");
-      setTimeout(() => navigate("/"), 1500); 
+      toast.success(res.data.message || "Login successful!");
+      console.log(res.data.data)
+      setLoggedInUser(res?.data?.data)
+      localStorage.setItem("userData",JSON.stringify(res?.data?.data))
+      setTimeout(() => navigate("/home"), 700); 
     } catch (err) {
       console.error(err.response?.data || err.message);
       toast.error(err.response?.data?.message || "Login failed");
