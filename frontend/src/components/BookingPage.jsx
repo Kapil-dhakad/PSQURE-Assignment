@@ -43,7 +43,8 @@ const BookingPage = () => {
 
   const handleConfirm = async () => {
     if (selectedSeats.length === 0) {
-      alert("Please select at least one seat before continuing.");
+      // alert("Please select at least one seat before continuing.");
+        toast.error("Please select at least one seat before continuing.");
       return;
     }
 
@@ -53,12 +54,13 @@ const BookingPage = () => {
       console.log("Booking Response:", response);
 
       if (response.success) {
-        alert("Booking created successfully!");
+        // alert("Booking created successfully!");
         navigate("/checkout", { state: { trip, selectedSeats } });
       }
     } catch (error) {
       console.error("Booking failed:", error);
-      alert("Booking failed. Please try again.");
+      // alert("Booking failed. Please try again.");
+        toast.error("Booking failed. Please try again.");
     } finally {
       setLoading(false);
     }

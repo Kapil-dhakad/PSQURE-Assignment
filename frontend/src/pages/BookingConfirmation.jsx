@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { toast } from "react-toastify";
 
 const BookingConfirmation = () => {
   const location = useLocation();
@@ -28,9 +29,9 @@ const BookingConfirmation = () => {
       const canvas = canvasRef.current;
       const ctx = canvas.getContext('2d');
       const size = 140;
-      const qrSize = 33; // Larger grid for more detailed QR
+      const qrSize = 33; 
       const cellSize = size / qrSize;
-      const moduleSize = cellSize * 0.9; // Slightly smaller modules for gaps
+      const moduleSize = cellSize * 0.9; 
       const gap = (cellSize - moduleSize) / 2;
 
         ctx.fillStyle = '#FFFFFF';
@@ -48,10 +49,8 @@ const BookingConfirmation = () => {
         ctx.fill();
       };
 
-      const drawFinderPattern = (startRow, startCol) => {
 
          const drawFinderPattern = (startRow, startCol) => {
-        // Outer border (7x7)
         for (let i = 0; i < 7; i++) {
           for (let j = 0; j < 7; j++) {
             if (i === 0 || i === 6 || j === 0 || j === 6) {
@@ -67,9 +66,9 @@ const BookingConfirmation = () => {
         }
       };
 
-        drawFinderPattern(0, 0); // Top-left
-      drawFinderPattern(0, qrSize - 7); // Top-right
-      drawFinderPattern(qrSize - 7, 0); // Bottom-left
+        drawFinderPattern(0, 0); 
+      drawFinderPattern(0, qrSize - 7); 
+      drawFinderPattern(qrSize - 7, 0); 
 
          const alignPos = qrSize - 11;
       for (let i = -2; i <= 2; i++) {
@@ -100,7 +99,7 @@ const BookingConfirmation = () => {
                                   col >= alignPos - 2 && col <= alignPos + 2);
           if (!isFinderArea && !isTimingArea && !isAlignmentArea) {
     const seed = ((row * 31 + col * 17 + hash) * 2654435761) >>> 0;
-            const shouldFill = (seed % 10) < 5; // 50% density
+            const shouldFill = (seed % 10) < 5; 
             
             if (shouldFill) {
               drawModule(row, col, 0.8);
@@ -108,9 +107,12 @@ const BookingConfirmation = () => {
           }
         }
       }
-        drawModule(4 * qrSize / 5, 8, 1);
-    }
+  
+    
 }}, [bookingId])
+  const downloadTicket = () => {
+    toast.success("Ticket downloaded successfully!");
+  };
     
 
   return (
@@ -263,7 +265,7 @@ const BookingConfirmation = () => {
 
             <div className="mt-auto flex items-center justify-between gap-4 pt-8">
               <button
-                onClick={() => { }}
+                onClick={downloadTicket}
                 className="flex items-center gap-3 bg-[#2563EB] hover:bg-[#1E4ED8] text-white font-medium px-6 py-3 rounded-[12px] shadow"
                 style={{ minWidth: 240 }}
               >

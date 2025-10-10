@@ -1,13 +1,33 @@
-import React, { useContext } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { TourContext } from "../context/TourBookingContext";
 import { toast } from "react-toastify";
+import axios from "axios";
+
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { user } = useContext(TourContext);
+    const [showDropdown, setShowDropdown] = useState(false);
+     const [user, setUser] = useState(null);
+  const dropdownRef = useRef(null);
+
+   useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const response = await axios.get("http://localhost:3000/api/v1/auth/profile", {
+          withCredentials: true
+        });
+        if (response.data.success) {
+          setUser(response.data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleAdminClick = () => {
     if (user?.role === "admin") {
@@ -16,6 +36,39 @@ const Navbar = () => {
       toast.error("Access only for Admin!");
     }
   };
+
+  const handleLogout = async () => {
+  try {
+    const response = await axios.post(
+      "http://localhost:3000/api/v1/auth/logout",
+      {},
+      { withCredentials: true }
+    );
+    
+  
+    if (response.status === 200) {
+      toast.success("Logout successful!");
+      setUser(null); 
+      navigate("/"); 
+    }
+  } catch (error) {
+    console.error("Logout error:", error);
+    toast.error(error.response?.data?.message || "Logout failed!");
+  }
+};
+
+ useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+ 
 
   return (
     <nav className="w-full bg-white shadow-sm">
@@ -78,11 +131,33 @@ const Navbar = () => {
           </li>
         </ul>
 
-        <img
-          src="https://i.pravatar.cc/40"
-          alt="profile"
-          className="w-12 h-12 rounded-full cursor-pointer"
-        />
+      <div className="relative" ref={dropdownRef}>
+          <img
+            src="https://i.pravatar.cc/40"
+            alt="profile"
+            className="w-12 h-12 rounded-full cursor-pointer hover:ring-2 hover:ring-blue-400 transition-all"
+            onMouseEnter={() => setShowDropdown(true)}
+          />
+          
+          {showDropdown && (
+            <div 
+              className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-2 z-50"
+              onMouseLeave={() => setShowDropdown(false)}
+            >
+              <div className="px-4 py-2 border-b border-gray-100">
+                <p className="text-sm font-semibold text-gray-800">{user?.name}</p>
+                <p className="text-xs text-gray-500">{user?.email}</p>
+              </div>
+              
+              <button
+                onClick={handleLogout}
+                className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+              >
+                Logout
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </nav>
   );

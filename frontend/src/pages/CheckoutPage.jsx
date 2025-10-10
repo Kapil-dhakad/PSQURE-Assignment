@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useLocation, useNavigate} from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import { toast } from "react-toastify";
 
 const Icon = {
   route: (
@@ -69,6 +70,8 @@ const CheckoutPage = () => {
   
   const handlePayment = () => {
     if (!isFormValid) return;
+       toast.success("Payment successful! Booking confirmed.");
+       
   navigate("/confirmation", {
     state: { trip, selectedSeats, totalFare },
   });
