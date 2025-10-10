@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { TourContext } from "../context/TourBookingContext";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 
 const Navbar = () => {
   const location = useLocation();
@@ -84,8 +84,6 @@ const Navbar = () => {
           className="w-12 h-12 rounded-full cursor-pointer"
         />
       </div>
-
-      <ToastContainer position="top-right" autoClose={3000} />
     </nav>
   );
 };

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
@@ -6,6 +6,7 @@ import Footer from "../components/Footer";
 const BookingConfirmation = () => {
   const location = useLocation();
   const navigate = useNavigate();
+    const canvasRef = useRef(null);
   const {
     trip = {},
     selectedSeats = ["E5", "E6"],
@@ -13,6 +14,104 @@ const BookingConfirmation = () => {
   } = location.state || {};
   const bookingId = trip.bookingId || "#TXN789456";
   console.log(trip)
+
+   const formattedDate = trip.date
+    ? new Date(trip.date).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })
+    : "October 26, 2024";
+
+    useEffect(() => {
+      if (canvasRef.current) {
+      const canvas = canvasRef.current;
+      const ctx = canvas.getContext('2d');
+      const size = 140;
+      const qrSize = 33; // Larger grid for more detailed QR
+      const cellSize = size / qrSize;
+      const moduleSize = cellSize * 0.9; // Slightly smaller modules for gaps
+      const gap = (cellSize - moduleSize) / 2;
+
+        ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(0, 0, size, size);
+
+       ctx.fillStyle = '#000000';
+
+      const hash = bookingId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+
+       const drawModule = (row, col, radius = 1) => {
+        const x = col * cellSize + gap;
+        const y = row * cellSize + gap;
+        ctx.beginPath();
+        ctx.roundRect(x, y, moduleSize, moduleSize, radius);
+        ctx.fill();
+      };
+
+      const drawFinderPattern = (startRow, startCol) => {
+
+         const drawFinderPattern = (startRow, startCol) => {
+        // Outer border (7x7)
+        for (let i = 0; i < 7; i++) {
+          for (let j = 0; j < 7; j++) {
+            if (i === 0 || i === 6 || j === 0 || j === 6) {
+              drawModule(startRow + i, startCol + j, 1.5);
+            }
+          }
+        }
+
+        for (let i = 2; i <= 4; i++) {
+          for (let j = 2; j <= 4; j++) {
+            drawModule(startRow + i, startCol + j, 1.5);
+          }
+        }
+      };
+
+        drawFinderPattern(0, 0); // Top-left
+      drawFinderPattern(0, qrSize - 7); // Top-right
+      drawFinderPattern(qrSize - 7, 0); // Bottom-left
+
+         const alignPos = qrSize - 11;
+      for (let i = -2; i <= 2; i++) {
+        for (let j = -2; j <= 2; j++) {
+          if ((Math.abs(i) === 2 || Math.abs(j) === 2) || (i === 0 && j === 0)) {
+            drawModule(alignPos + i, alignPos + j, 1);
+          }
+        }
+      }
+
+       for (let i = 8; i < qrSize - 8; i++) {
+        if (i % 2 === 0) {
+          drawModule(6, i, 1);
+          drawModule(i, 6, 1);
+        }
+      }
+
+        for (let row = 0; row < qrSize; row++) {
+        for (let col = 0; col < qrSize; col++) {
+             const isFinderArea = 
+            (row < 9 && col < 9) || 
+            (row < 9 && col >= qrSize - 8) || 
+            (row >= qrSize - 8 && col < 9);
+
+              const isTimingArea = (row === 6 && col >= 8 && col < qrSize - 8) || 
+                               (col === 6 && row >= 8 && row < qrSize - 8);
+                                const isAlignmentArea = (row >= alignPos - 2 && row <= alignPos + 2 && 
+                                  col >= alignPos - 2 && col <= alignPos + 2);
+          if (!isFinderArea && !isTimingArea && !isAlignmentArea) {
+    const seed = ((row * 31 + col * 17 + hash) * 2654435761) >>> 0;
+            const shouldFill = (seed % 10) < 5; // 50% density
+            
+            if (shouldFill) {
+              drawModule(row, col, 0.8);
+            }
+          }
+        }
+      }
+        drawModule(4 * qrSize / 5, 8, 1);
+    }
+}}, [bookingId])
+    
 
   return (
     <div className="min-h-screen bg-white flex flex-col items-center">
@@ -150,10 +249,11 @@ const BookingConfirmation = () => {
 
             <div className="flex flex-col items-center mt-8">
               <div className="bg-white rounded-[16px] p-4 shadow-md border border-gray-100">
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${bookingId}`}
-                  alt="QR"
-                  className="w-[140px] h-[140px] object-cover rounded-md"
+                 <canvas
+                  ref={canvasRef}
+                  width="140"
+                  height="140"
+                  className="w-[140px] h-[140px] rounded-md"
                 />
               </div>
               <p className="text-gray-400 text-sm mt-4">
@@ -197,7 +297,13 @@ const BookingConfirmation = () => {
 
               <button
                 onClick={() =>
-                  navigate(`/viewticket`)
+                  navigate(`/viewticket`,  {
+                    state: {
+                      trip,
+                      passenger: "Saurabh Gupta",
+                      price: totalFare,
+                    },
+                  })
                 }
                 className="flex items-center gap-3 border border-[#2563EB] text-[#2563EB] font-medium px-6 py-3 rounded-[12px] bg-white hover:bg-blue-50"
               >

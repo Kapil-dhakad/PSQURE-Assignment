@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { FaBus, FaUsers, FaClock } from "react-icons/fa";
 import TripForm from "../../components/admin/TripForm";
-import { toast } from "react-toastify"; // Make sure you have react-toastify installed
+import { toast } from "react-toastify"; 
 import { MdEdit } from "react-icons/md"; 
 import { MdDelete } from "react-icons/md";
 
@@ -312,9 +312,133 @@ const upcomingDepartures = bookings.filter((booking) => {
         </div>
       </section>
 
-      {/* Booking Management - Keep as is */}
+         
+         {/* Booking Management */}
       <section className="w-full max-w-[1232px] h-[336px] bg-white border border-gray-200 rounded-lg shadow-sm p-5 mb-10 mx-auto">
-        {/* ... existing booking management code ... */}
+        <div className="flex justify-between items-center mb-4">
+          <h4 className="text-base font-semibold">Booking Management</h4>
+          <span className="text-sm text-gray-500">
+            Total: {bookings.length} booking{bookings.length !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        <div className="overflow-auto max-h-[260px]">
+          <table className="w-full border-collapse bg-white rounded-md border border-gray-200">
+            <thead className="bg-gray-50 sticky top-0">
+              <tr>
+                <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">
+                  Booking ID
+                </th>
+                <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">
+                  Passenger
+                </th>
+                <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">
+                  Email
+                </th>
+                <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">
+                  Seat Numbers
+                </th>
+                <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">
+                  Booking Date
+                </th>
+                <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">
+                  Payment
+                </th>
+                <th className="px-4 py-3 text-left text-gray-700 font-semibold text-sm">
+                  Status
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading ? (
+                <tr>
+                  <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
+                    Loading bookings...
+                  </td>
+                </tr>
+              ) : bookings.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="px-4 py-8 text-center text-gray-500">
+                    No bookings available.
+                  </td>
+                </tr>
+              ) : (
+                bookings.map((booking) => (
+                  <tr
+                    key={booking._id}
+                    className="h-[73px] border-b border-gray-200 text-gray-900 text-sm hover:bg-gray-50"
+                  >
+                    <td className="px-4 truncate" title={booking._id}>
+                      {booking._id.slice(-8)}
+                    </td>
+                    <td className="px-4 truncate">
+                      {booking.user?.name || "Guest"}
+                    </td>
+                    <td className="px-4 truncate">
+                      {booking.user?.email || "N/A"}
+                    </td>
+                    <td className="px-4">
+                      <div className="flex flex-wrap gap-1">
+                        {booking.seats && booking.seats.length > 0 ? (
+                          booking.seats.map((seat, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-block px-2 py-0.5 bg-blue-100 text-blue-700 rounded text-xs font-medium"
+                            >
+                              {seat}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-gray-400">No seats</span>
+                        )}
+                      </div>
+                    </td>
+                    <td className="px-4 truncate">
+                      {booking.bookingDate
+                        ? new Date(booking.bookingDate).toLocaleDateString("en-US", {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit"
+                          })
+                        : "N/A"}
+                    </td>
+                    <td className="px-4">
+                      <div className="flex flex-col">
+                        <span className="text-xs text-gray-600 capitalize">
+                          {booking.paymentInfo?.method || "N/A"}
+                        </span>
+                        <span
+                          className={`text-xs font-medium ${
+                            booking.paymentInfo?.paid
+                              ? "text-orange-600"
+                              : "text-green-600"
+                          }`}
+                        >
+                          {booking.paymentInfo?.paid ?  "Pending" : "Paid" }
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4">
+                      <span
+                        className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          booking.status === "booked"
+                            ? "bg-green-100 text-green-800"
+                            : booking.status === "cancelled"
+                            ? "bg-red-100 text-red-800"
+                            : "bg-gray-100 text-gray-800"
+                        }`}
+                      >
+                        {booking.status?.charAt(0).toUpperCase() + booking.status?.slice(1) || "Unknown"}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
       </section>
 
       {showForm && (

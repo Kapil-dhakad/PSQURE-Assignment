@@ -1,14 +1,42 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { Calendar, Clock, DoorOpen, User } from "lucide-react";
 import Navbar from "../components/Navbar";
+import html2canvas from "html2canvas";
+import { toast } from "react-toastify";
 
 export default function ViewTicket() {
+  
   const location = useLocation();
   const { trip, passenger, price } = location.state || {};
 
+  const [userData, setUserData] = useState(() => {
+    const stored = localStorage.getItem("userData");
+    return stored ? JSON.parse(stored) : null;
+  });
+  const passengerName = passenger?.fullName || "Passenger";
+
+   const handleDownload = async () => {
+    const ticketElement = document.getElementById("ticket-wrapper");
+    if (!ticketElement) return;
+
+     try {
+      const canvas = await html2canvas(ticketElement, { scale: 2 });
+      const dataURL = canvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = dataURL;
+      link.download = `ticket_${passengerName}.png`;
+      link.click();
+        toast.success("Ticket downloaded successfully!");
+    } catch (err) {
+      toast.error("Download failed. Try again!");
+      console.error(err);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white px-10 py-8 overflow-x-hidden">
+      {/* <ToastContainer position="" /> */}
       <Navbar />
 
       <div className="mt-[60px]" />
@@ -20,19 +48,21 @@ export default function ViewTicket() {
         >
           <div>
             <h1 className="text-[24px] font-semibold text-gray-900">
-              Emirates A380 Airbus
+            {trip?.airline || "indgo A380 Airbus"}
             </h1>
             <p className="text-gray-600 text-sm mt-2 flex items-center">
               <span className="mr-2">📍</span>
-              Gümüssuyu Mah. İnönü Cad. No:8, Istanbul 34437
+             {trip?.fromAddress ||
+                "Mumbai local. İnönü Cad. No:8, area 45784"}
             </p>
           </div>
 
           <div className="text-right">
             <div className="text-[26px] font-extrabold text-green-800 leading-none">
-              $89
+              ${price || "899"}
             </div>
             <button
+            onClick={handleDownload}
               className="mt-4 inline-block rounded-md text-white font-medium"
               style={{
                 background: "#2563EB",
@@ -45,6 +75,7 @@ export default function ViewTicket() {
           </div>
         </div>
 
+          <div id="ticket-wrapper">
         <div
           className="flex items-stretch border border-gray-200 bg-white overflow-hidden"
           style={{
@@ -66,8 +97,8 @@ export default function ViewTicket() {
             }}
           >
             <div>
-              <div className="text-[30px] font-semibold text-gray-900">10:30 Am</div>
-              <div className="text-sm text-gray-600 mt-1">New York</div>
+              <div className="text-[30px] font-semibold text-gray-900">{trip?.time || "11:30 AM"}</div>
+              <div className="text-sm text-gray-600 mt-1"> {trip?.from || "Delhi "}</div>
             </div>
 
             <div className="flex flex-col items-center">
@@ -92,8 +123,8 @@ export default function ViewTicket() {
             </div>
 
             <div>
-              <div className="text-[30px] font-semibold text-gray-900">2:00 pm</div>
-              <div className="text-sm text-gray-600 mt-1">Boston</div>
+              <div className="text-[30px] font-semibold text-gray-900"> {trip?.arrivalTime || "2:00 PM"}</div>
+              <div className="text-sm text-gray-600 mt-1"> {trip?.to || "Mumbai"}</div>
             </div>
           </div>
 
@@ -120,7 +151,10 @@ export default function ViewTicket() {
             >
               <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                 <img
-                  src="https://randomuser.me/api/portraits/men/32.jpg"
+                 src={
+                      passenger?.avatar ||
+                      "https://randomuser.me/api/portraits/men/32.jpg"
+                    }
                   alt="passenger"
                   style={{
                     width: 48,
@@ -131,16 +165,16 @@ export default function ViewTicket() {
                 />
                 <div>
                   <div style={{ fontSize: 16, fontWeight: 600, color: "#0F172A" }}>
-                    kapil
+                     {userData?.name || "kapil"}
                   </div>
                   <div style={{ fontSize: 13, color: "#334155", marginTop: 2 }}>
-                    Boarding Pass 12
+                     Boarding Pass N’{trip?.boardingPass || "145"}
                   </div>
                 </div>
               </div>
 
               <div style={{ fontSize: 13, color: "#0F172A", fontWeight: 600 }}>
-                Business Class
+                {trip?.classType || "Business Class"}
               </div>
             </div>
 
@@ -180,13 +214,15 @@ export default function ViewTicket() {
               }}
             >
               <div>
-                <div style={{ fontSize: 28, fontWeight: 700, color: "#072226" }}>EK</div>
-                <div className="text-sm text-gray-600">ABC12345</div>
+                <div style={{ fontSize: 28, fontWeight: 700, color: "#072226" }}>{trip?.airlineCode || "INK"}</div>
+                <div className="text-sm text-gray-600">   {trip?.ticketNumber || "ABC12345"}</div>
               </div>
 
               <img
                 alt="barcode"
-                src="https://api.qrserver.com/v1/create-qr-code/?size=220x48&data=EK12345"
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=220x48&data=${
+                    trip?.ticketNumber || "INK12345"
+                  }`}
                 style={{
                   width: 240,
                   height: 46,
@@ -242,7 +278,9 @@ export default function ViewTicket() {
             >
               <img
                 alt="thumb"
-                src="https://picsum.photos/48/36?random=1"
+                 src={
+                    passenger?.avatar || "https://picsum.photos/48/36?random=1"
+                  }
                 style={{
                   width: 48,
                   height: 36,
@@ -250,7 +288,7 @@ export default function ViewTicket() {
                   borderRadius: 6,
                 }}
               />
-              <div style={{ color: "#0F172A", fontWeight: 600 }}>James Doe</div>
+              <div style={{ color: "#0F172A", fontWeight: 600 }}>{passenger?.fullName || "kapil "}</div>
             </div>
 
             <div
@@ -270,7 +308,9 @@ export default function ViewTicket() {
             >
               <img
                 alt="thumb"
-                src="https://picsum.photos/48/36?random=2"
+               src={
+                    passenger?.avatar || "https://picsum.photos/48/36?random=2"
+                  }
                 style={{
                   width: 48,
                   height: 36,
@@ -278,9 +318,10 @@ export default function ViewTicket() {
                   borderRadius: 6,
                 }}
               />
-              <div style={{ color: "#0F172A", fontWeight: 600 }}>James Doe</div>
+              <div style={{ color: "#0F172A", fontWeight: 600 }}>{passenger?.fullName || "kapil "}</div>
             </div>
           </div>
+        </div>
         </div>
 
         <div className="mt-10" style={{ width: "1231px" }}>

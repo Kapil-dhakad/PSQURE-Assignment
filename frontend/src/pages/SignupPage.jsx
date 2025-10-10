@@ -67,7 +67,6 @@ const SignupPage = () => {
   const handleSignup = async (e) => {
     e.preventDefault();
 
-    toast.dismiss(); // Purane toasts remove kar do
 
     if (
       !formData.name ||

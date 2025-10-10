@@ -8,8 +8,8 @@ const BookingPage = () => {
   const navigate = useNavigate();
 
   const trip = location.state?.trip;
-  console.log("Trip data:", trip);
 
+  
   const { createBooking } = useContext(TourContext);
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(false);

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, Mail, Plane } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useContext } from "react";
 import { TourContext } from "../context/TourBookingContext";
@@ -41,13 +41,11 @@ const LoginPage = () => {
           withCredentials: true, 
         }
       );
-
-      
-      toast.success(res.data.message || "Login successful!");
-      console.log(res.data.data)
-      setLoggedInUser(res?.data?.data)
-      localStorage.setItem("userData",JSON.stringify(res?.data?.data))
-      setTimeout(() => navigate("/home"), 700); 
+  const userData = res?.data?.data;
+  localStorage.setItem("userData",JSON.stringify(userData))
+  setLoggedInUser(userData)
+       toast.success(res.data.message || "Login successful!");
+       setTimeout(() => navigate("/home"), 500); 
     } catch (err) {
       console.error(err.response?.data || err.message);
       toast.error(err.response?.data?.message || "Login failed");
@@ -141,7 +139,6 @@ const LoginPage = () => {
           </button>
         </p>
 
-        <ToastContainer position="top-right" autoClose={3000} />
       </div>
     </div>
   );

@@ -54,16 +54,26 @@ const CheckoutPage = () => {
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
+  const seatCount = (selectedSeats && selectedSeats.length) || 0;
+  const farePerSeat = Number(trip?.price || 48);
+  const totalFare = farePerSeat * Math.max(1, seatCount);
 
+   const isFormValid = (() => {
+    const { fullName, email, phone, cardNumber, cardholderName, expiry, cvv } = formData;
+    if (!fullName.trim() || !email.trim() || !phone.trim()) return false;
+    if (paymentMethod === "card") {
+      return cardNumber.trim() && cardholderName.trim() && expiry.trim() && cvv.trim();
+    }
+    return true; // Wallet requires only basic info
+  })();
+  
   const handlePayment = () => {
+    if (!isFormValid) return;
   navigate("/confirmation", {
     state: { trip, selectedSeats, totalFare },
   });
 };
 
-  const seatCount = (selectedSeats && selectedSeats.length) || 0;
-  const farePerSeat = Number(trip?.price || 48);
-  const totalFare = farePerSeat * Math.max(1, seatCount);
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
@@ -313,12 +323,18 @@ const CheckoutPage = () => {
 
           <button
             onClick={handlePayment}
-            className="mt-6 bg-blue-600 hover:bg-blue-700 w-full py-3 rounded-md text-white font-medium transition"
+            disabled={!isFormValid}
+            className={`mt-6 w-full py-3 rounded-md text-white font-medium transition ${
+              isFormValid
+                ? "bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                : "bg-blue-400 cursor-not-allowed"
+            }`}
           >
             Complete Payment
           </button>
         </div>
       </div>
+      <Footer/>
     </div>
   );
 };
