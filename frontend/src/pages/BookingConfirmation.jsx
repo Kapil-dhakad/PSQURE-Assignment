@@ -278,6 +278,15 @@ const BookingConfirmation = () => {
                       strokeLinecap="round"
                       strokeLinejoin="round"
                     />
+<button
+  onClick={() => {
+    navigate("/", { replace: true }); 
+    window.location.reload(); 
+  }}
+  className="flex items-center gap-3 border border-[#2563EB] text-[#2563EB] font-medium px-6 py-3 rounded-[12px] bg-white hover:bg-blue-50"
+>
+  <span className="text-lg">Back to Home</span>
+</button>
                     <path
                       d="M7 10l5 5 5-5"
                       stroke="#fff"

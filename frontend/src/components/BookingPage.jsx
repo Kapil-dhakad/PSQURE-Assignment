@@ -55,7 +55,9 @@ const BookingPage = () => {
 
       if (response.success) {
         // alert("Booking created successfully!");
-        navigate("/checkout", { state: { trip, selectedSeats } });
+        navigate("/checkout", { state: { trip, selectedSeats },
+           replace: true
+         });
       }
     } catch (error) {
       console.error("Booking failed:", error);

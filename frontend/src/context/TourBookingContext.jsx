@@ -118,7 +118,6 @@ const TourContextProvider = ({ children }) => {
   };
 
   const createBooking = async (tripId, seats) => {
-    console.log("ye jo he booking ka ", tripId, seats);
 
     try {
       const res = await axios.post(
@@ -128,6 +127,7 @@ const TourContextProvider = ({ children }) => {
       );
       if (res?.data?.success) {
         fetchUserBookings();
+        fetchTrips();
         toast.success("Booking created successfully!");
         return res.data;
       }

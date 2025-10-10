@@ -65,15 +65,16 @@ const CheckoutPage = () => {
     if (paymentMethod === "card") {
       return cardNumber.trim() && cardholderName.trim() && expiry.trim() && cvv.trim();
     }
-    return true; // Wallet requires only basic info
+    return true; 
   })();
   
   const handlePayment = () => {
     if (!isFormValid) return;
        toast.success("Payment successful! Booking confirmed.");
-       
+
   navigate("/confirmation", {
     state: { trip, selectedSeats, totalFare },
+     replace: true
   });
 };
 
